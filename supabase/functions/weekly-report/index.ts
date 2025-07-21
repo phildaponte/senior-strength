@@ -41,9 +41,9 @@ serve(async (req: Request) => {
     // @ts-ignore - Deno global
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     // @ts-ignore - Deno global
-    const postmarkServerToken = Deno.env.get('POSTMARK_SERVER_TOKEN')!
+    const resendApiKey = Deno.env.get('RESEND_API_KEY')!
 
-    if (!supabaseUrl || !supabaseServiceKey || !postmarkServerToken) {
+    if (!supabaseUrl || !supabaseServiceKey || !resendApiKey) {
       throw new Error('Missing required environment variables')
     }
 
@@ -108,7 +108,7 @@ serve(async (req: Request) => {
           user,
           stats,
           journalEntries,
-          postmarkServerToken
+          resendApiKey
         )
 
         results.push({
@@ -189,33 +189,32 @@ async function sendWeeklyReportEmail(
   user: any,
   stats: WeeklyStats,
   journalEntries: JournalEntry[],
-  postmarkToken: string
+  resendApiKey: string
 ): Promise<boolean> {
   try {
     const emailHtml = generateEmailHtml(user, stats, journalEntries)
     
     const emailData = {
-      From: 'reports@seniorstrength.app',
-      To: user.trusted_contact_email,
-      Subject: `Weekly Fitness Report for ${user.full_name || user.email}`,
-      HtmlBody: emailHtml,
-      TextBody: generateEmailText(user, stats, journalEntries),
-      MessageStream: 'outbound'
+      from: 'reports@seniorstrength.app',
+      to: [user.trusted_contact_email],
+      subject: `Weekly Fitness Report for ${user.full_name || user.email}`,
+      html: emailHtml,
+      text: generateEmailText(user, stats, journalEntries)
     }
 
-    const response = await fetch('https://api.postmarkapp.com/email', {
+    const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'X-Postmark-Server-Token': postmarkToken
+        'Authorization': `Bearer ${resendApiKey}`
       },
       body: JSON.stringify(emailData)
     })
 
     if (!response.ok) {
       const errorData = await response.json()
-      console.error('Postmark API error:', errorData)
+      console.error('Resend API error:', errorData)
       return false
     }
 

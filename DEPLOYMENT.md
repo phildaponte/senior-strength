@@ -48,12 +48,12 @@
    ```
    SUPABASE_URL=your_supabase_url
    SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-   POSTMARK_SERVER_TOKEN=your_postmark_server_token
+   RESEND_API_KEY=your_resend_api_key
    ```
 
-### 📧 Postmark Setup
+### 📧 Resend Setup
 
-1. **Create Postmark Account** at https://postmarkapp.com
+1. **Create Resend Account** at https://resend.com
 2. **Create a Server** and get your Server Token
 3. **Verify your sender domain** or use a verified email
 4. **Update the sender email** in the weekly-report function if needed
@@ -159,8 +159,8 @@ Use services like cron-job.org or EasyCron:
    - Verify EXPO_PUBLIC_PROJECT_ID is correct
 
 3. **Email Not Sending**
-   - Verify Postmark server token
-   - Check sender email is verified in Postmark
+   - Verify Resend API key
+   - Check sender email is verified in Resend
    - Look at Supabase Edge Function logs
 
 4. **Database Connection Issues**
@@ -171,7 +171,7 @@ Use services like cron-job.org or EasyCron:
 ### Monitoring
 
 - **Supabase Dashboard**: Monitor Edge Function logs
-- **Postmark Dashboard**: Track email delivery
+- **Resend Dashboard**: Track email delivery
 - **Expo Dashboard**: Monitor push notification delivery
 
 ## 🎯 Next Steps

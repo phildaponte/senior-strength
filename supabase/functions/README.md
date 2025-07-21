@@ -10,7 +10,7 @@ Generates and sends weekly fitness reports via email to trusted contacts.
 **Features:**
 - Calculates weekly stats (workouts, minutes, active days, streak)
 - Generates beautiful HTML email with calendar grid and sentiment analysis
-- Sends via Postmark to user's trusted contact email
+- Sends via Resend to user's trusted contact email
 
 ### 2. `send-push-notification`
 Sends push notifications via Expo Push API.
@@ -52,7 +52,7 @@ Set these in your Supabase project dashboard under Settings > Edge Functions:
 ```
 SUPABASE_URL=your_supabase_url
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-POSTMARK_SERVER_TOKEN=your_postmark_server_token
+RESEND_API_KEY=your_resend_api_key
 ```
 
 ### Scheduling (Cron Jobs)

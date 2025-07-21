@@ -136,7 +136,7 @@ Required environment variables:
 - `EXPO_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anonymous key
 - `OPENAI_API_KEY` - OpenAI API key (for sentiment analysis)
 - `EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
-- `POSTMARK_API_TOKEN` - Postmark API token (for emails)
+- `RESEND_API_KEY` - Resend API key (for emails)
 
 ## 🤝 Contributing
 

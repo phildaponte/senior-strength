@@ -47,7 +47,7 @@ export default function Login() {
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>Welcome to</Text>
-          <Text style={styles.appName}>Senior Strength</Text>
+          <Text style={styles.appName}>Senior Strength V2</Text>
           <Text style={styles.subtitle}>Your fitness journey starts here</Text>
         </View>
 

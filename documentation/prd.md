@@ -62,7 +62,7 @@ Senior Strength is a fitness training app designed specifically for senior citiz
 ### 6. **Weekly Report Email**
 - Every Monday at 6:00 AM.
 - Summary of completed workouts, total minutes, and active days.
-- Sent via Postmark to trusted contact.
+- Sent via Resend to trusted contact.
 - Includes calendar grid + optional AI journal summary.
 
 ### 7. **Subscription**
@@ -86,7 +86,7 @@ Senior Strength is a fitness training app designed specifically for senior citiz
 | Frontend | React Native (Expo SDK 50+) |
 | UI Components | **Tamagui** (Shadcn-inspired, cross-platform native UI) |
 | Backend | Supabase (PostgreSQL + Auth + Storage + Edge Functions) |
-| Email | Postmark |
+| Email | Resend |
 | Notifications | Expo Notifications |
 | Payments | **Stripe (mobile SDK)** |
 | AI | OpenAI API (sentiment analysis) |

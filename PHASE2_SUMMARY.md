@@ -26,7 +26,7 @@
 - ✅ Visual calendar grid showing workout days
 - ✅ Sentiment analysis summary with progress bar
 - ✅ Journal entry highlights
-- ✅ Postmark integration for reliable delivery
+- ✅ Resend integration for reliable delivery
 - ✅ Test functionality in profile screen
 
 **User Experience:**
@@ -129,11 +129,11 @@ EXPO_PUBLIC_PROJECT_ID=your_expo_project_id
 # Edge Functions
 SUPABASE_URL=your_supabase_url
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-POSTMARK_SERVER_TOKEN=your_postmark_token
+RESEND_API_KEY=your_resend_api_key
 ```
 
 ### **External Services**
-- **Postmark**: Email delivery service
+- **Resend**: Email delivery service
 - **Expo Push API**: Push notification delivery
 - **Supabase Edge Functions**: Serverless function hosting
 

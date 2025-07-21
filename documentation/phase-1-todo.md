@@ -101,7 +101,7 @@ This checklist reflects all deliverables for the Senior Strength native app, inc
 
 ---
 
-## 📧 Weekly Report Email (Postmark)
+## 📧 Weekly Report Email (Resend)
 - [x] Supabase Edge Function to generate the report (`weekly-report`)
 - [x] Send to `trusted_contact_email` with sentiment and daily summary
 - [x] Beautiful HTML email template with:
@@ -116,7 +116,7 @@ This checklist reflects all deliverables for the Senior Strength native app, inc
 - [x] Generate:
   - Total workouts, active days, minutes
 - [x] Include sentiment summary (e.g., 3 Positive / 1 Neutral)
-- [x] Send to `trusted_contact_email` using Postmark template
+- [x] Send to `trusted_contact_email` using Resend API
 
 ---
 
@@ -178,4 +178,13 @@ This checklist reflects all deliverables for the Senior Strength native app, inc
 - [ ] Streaks + badges display properly
 - [ ] Stripe subscription flow works and limits access if unpaid
 - [ ] Test builds available on iOS and Android
+
+## 🔄 Recent Updates
+
+### Email Provider Migration (Completed)
+- [x] **Migrated from Postmark to Resend** for email delivery
+- [x] Updated weekly-report Edge Function to use Resend API
+- [x] Changed environment variable from `POSTMARK_SERVER_TOKEN` to `RESEND_API_KEY`
+- [x] Updated all documentation and configuration files
+- [x] Maintained Deno compatibility for Supabase Edge Functions
 
