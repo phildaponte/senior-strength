@@ -1,8 +1,9 @@
-import React from 'react'
-import { View, Text, StyleSheet, ScrollView } from 'react-native'
+import React, { useEffect, useRef } from 'react'
+import { View, Text, StyleSheet, ScrollView, Animated, Dimensions } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import StatCard from '../components/StatCard'
 import { ProgressStats, LevelInfo, Achievement } from '../types'
-import { COLORS as colors, TYPOGRAPHY as typography, SPACING as spacing } from '../styles/sharedStyles'
+import { COLORS as colors, TYPOGRAPHY as typography, SPACING as spacing, SHADOWS, RADIUS } from '../styles/sharedStyles'
 
 interface StatsViewProps {
   stats: ProgressStats
@@ -16,7 +17,8 @@ interface StatsViewProps {
  * StatsView Component
  * 
  * Displays the main statistics view with workout stats, level progression,
- * and motivational content. Designed with senior-friendly UI principles.
+ * and motivational content. Enhanced with animations, icons, and vibrant design
+ * while maintaining senior-friendly UI principles.
  */
 const StatsView: React.FC<StatsViewProps> = ({
   stats,
@@ -25,11 +27,60 @@ const StatsView: React.FC<StatsViewProps> = ({
   motivationalMessage,
   loading
 }) => {
+  // Animation references for smooth transitions
+  const fadeAnim = useRef(new Animated.Value(0)).current
+  const xpBarAnim = useRef(new Animated.Value(0)).current
+  const statsAnim = useRef(new Animated.Value(0)).current
+  const pulseAnim = useRef(new Animated.Value(1)).current
+  
   // Calculate XP progress percentage for the progress bar
   const xpProgress = levelInfo.nextLevelXp > 0 ? (levelInfo.xp / levelInfo.nextLevelXp) * 100 : 0
+  const isCloseToLevelUp = xpProgress >= 80 // Add glow effect when close to leveling up
 
   // Get next achievement to unlock for motivation
   const nextAchievement = achievements.find(achievement => !achievement.unlocked)
+  
+  // Animate components on mount
+  useEffect(() => {
+    if (!loading) {
+      // Stagger animations for smooth entrance
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(xpBarAnim, {
+          toValue: xpProgress,
+          duration: 1200,
+          useNativeDriver: false,
+        }),
+        Animated.timing(statsAnim, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ]).start()
+      
+      // Pulse animation for close-to-level-up state
+      if (isCloseToLevelUp) {
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(pulseAnim, {
+              toValue: 1.05,
+              duration: 1000,
+              useNativeDriver: true,
+            }),
+            Animated.timing(pulseAnim, {
+              toValue: 1,
+              duration: 1000,
+              useNativeDriver: true,
+            }),
+          ])
+        ).start()
+      }
+    }
+  }, [loading, xpProgress, isCloseToLevelUp])
 
   if (loading) {
     return (
@@ -41,90 +92,108 @@ const StatsView: React.FC<StatsViewProps> = ({
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Hero Section with Level and XP */}
-      <View style={styles.heroSection}>
-        <View style={styles.levelContainer}>
+      {/* Hero Section with Level and XP - Enhanced with animations */}
+      <Animated.View style={[styles.heroSection, { opacity: fadeAnim }]}>
+        <Animated.View style={[styles.levelContainer, { transform: [{ scale: pulseAnim }] }]}>
           <Text style={styles.levelLabel}>Level</Text>
           <Text style={styles.levelNumber}>{levelInfo.level}</Text>
-        </View>
+          {isCloseToLevelUp && (
+            <View style={styles.levelUpIndicator}>
+              <Ionicons name="flash" size={16} color={colors.background} />
+              <Text style={styles.levelUpText}>Almost there!</Text>
+            </View>
+          )}
+        </Animated.View>
         
         <View style={styles.xpContainer}>
           <Text style={styles.xpText}>
             {levelInfo.xp} / {levelInfo.nextLevelXp} XP
           </Text>
-          <View style={styles.xpBarBackground}>
-            <View 
+          <View style={[styles.xpBarBackground, isCloseToLevelUp && styles.xpBarGlow]}>
+            <Animated.View 
               style={[
-                styles.xpBarFill, 
-                { width: `${Math.min(xpProgress, 100)}%` }
+                styles.xpBarFill,
+                isCloseToLevelUp && styles.xpBarFillGlow,
+                { 
+                  width: xpBarAnim.interpolate({
+                    inputRange: [0, 100],
+                    outputRange: ['0%', '100%'],
+                    extrapolate: 'clamp'
+                  })
+                }
               ]} 
             />
           </View>
         </View>
-      </View>
+      </Animated.View>
 
-      {/* Motivational Message */}
-      <View style={styles.motivationContainer}>
-        <Text style={styles.motivationText}>{motivationalMessage}</Text>
-      </View>
+      {/* Enhanced Motivational Message with quote styling */}
+      <Animated.View style={[styles.motivationContainer, { opacity: fadeAnim }]}>
+        <View style={styles.quoteIconContainer}>
+          <Ionicons name="chatbubble-ellipses" size={24} color={colors.primary} />
+        </View>
+        <Text style={styles.quoteText}>"{motivationalMessage}"</Text>
+        <View style={styles.quoteDivider} />
+      </Animated.View>
 
-      {/* Quick Stats Grid */}
-      <View style={styles.statsGrid}>
+      {/* Enhanced Quick Stats Grid with icons and animations */}
+      <Animated.View style={[styles.statsGrid, { opacity: statsAnim }]}>
         <StatCard
           title="Total Workouts"
           value={stats.totalWorkouts}
           subtitle="completed"
+          icon="barbell"
+          iconColor={colors.primary}
         />
         <StatCard
           title="Total Time"
           value={`${Math.floor(stats.totalMinutes / 60)}h ${stats.totalMinutes % 60}m`}
           subtitle="exercised"
+          icon="stopwatch"
+          iconColor={colors.secondary}
         />
         <StatCard
           title="Current Streak"
           value={stats.currentStreak}
           subtitle="days"
+          icon="flame"
+          iconColor={stats.currentStreak > 0 ? '#4CAF50' : colors.textSecondary}
+          isStreak={true}
+          streakType="current"
         />
         <StatCard
           title="Longest Streak"
           value={stats.longestStreak}
           subtitle="days"
+          icon="trophy"
+          iconColor={stats.longestStreak > 7 ? '#FFD700' : colors.textSecondary}
+          isStreak={true}
+          streakType="longest"
         />
-      </View>
+      </Animated.View>
 
-      {/* Time-based Statistics */}
-      <View style={styles.timeStatsContainer}>
-        <Text style={styles.sectionTitle}>Recent Activity</Text>
-        <View style={styles.timeStatsGrid}>
-          <View style={styles.timeStatItem}>
-            <Text style={styles.timeStatNumber}>{stats.thisWeekWorkouts}</Text>
-            <Text style={styles.timeStatLabel}>This Week</Text>
-          </View>
-          <View style={styles.timeStatItem}>
-            <Text style={styles.timeStatNumber}>{stats.thisMonthWorkouts}</Text>
-            <Text style={styles.timeStatLabel}>This Month</Text>
-          </View>
-          <View style={styles.timeStatItem}>
-            <Text style={styles.timeStatNumber}>{stats.thisYearWorkouts}</Text>
-            <Text style={styles.timeStatLabel}>This Year</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Next Achievement Preview */}
+      {/* Enhanced Next Achievement Preview with badge visualization */}
       {nextAchievement && (
-        <View style={styles.nextAchievementContainer}>
-          <Text style={styles.sectionTitle}>Next Goal</Text>
+        <Animated.View style={[styles.nextAchievementContainer, { opacity: statsAnim }]}>
+          <View style={styles.sectionTitleContainer}>
+            <Ionicons name="flag" size={20} color={colors.primary} />
+            <Text style={styles.sectionTitle}>Next Goal</Text>
+          </View>
           <View style={styles.achievementPreview}>
-            <Text style={styles.achievementIcon}>{nextAchievement.icon}</Text>
+            <View style={styles.badgeContainer}>
+              <View style={styles.badgeBackground}>
+                <Text style={styles.achievementIcon}>{nextAchievement.icon}</Text>
+              </View>
+            </View>
             <View style={styles.achievementInfo}>
               <Text style={styles.achievementTitle}>{nextAchievement.title}</Text>
               <Text style={styles.achievementDescription}>{nextAchievement.description}</Text>
               <View style={styles.progressContainer}>
                 <View style={styles.progressBarBackground}>
-                  <View 
+                  <Animated.View 
                     style={[
-                      styles.progressBarFill, 
+                      styles.progressBarFill,
+                      styles.achievementProgressFill,
                       { width: `${Math.min((nextAchievement.progress / nextAchievement.target) * 100, 100)}%` }
                     ]} 
                   />
@@ -133,9 +202,12 @@ const StatsView: React.FC<StatsViewProps> = ({
                   {nextAchievement.progress} / {nextAchievement.target}
                 </Text>
               </View>
+              <Text style={styles.progressPercentage}>
+                {Math.round((nextAchievement.progress / nextAchievement.target) * 100)}% Complete
+              </Text>
             </View>
           </View>
-        </View>
+        </Animated.View>
       )}
     </ScrollView>
   )
@@ -157,11 +229,12 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   heroSection: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     padding: spacing.xl,
-    borderRadius: spacing.md,
+    borderRadius: RADIUS.lg,
     margin: spacing.md,
     alignItems: 'center',
+    ...SHADOWS.medium,
   },
   levelContainer: {
     alignItems: 'center',
@@ -176,6 +249,21 @@ const styles = StyleSheet.create({
     ...typography.hero,
     color: colors.background,
     fontWeight: 'bold',
+  },
+  levelUpIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: spacing.xs,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: RADIUS.sm,
+  },
+  levelUpText: {
+    ...typography.caption,
+    color: colors.background,
+    marginLeft: spacing.xs,
+    fontWeight: '600',
   },
   xpContainer: {
     width: '100%',
@@ -193,23 +281,54 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     overflow: 'hidden',
   },
+  xpBarGlow: {
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
+    elevation: 8,
+  },
   xpBarFill: {
     height: '100%',
     backgroundColor: colors.background,
     borderRadius: 6,
   },
+  xpBarFillGlow: {
+    backgroundColor: '#E8F5E8',
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 4,
+  },
   motivationContainer: {
     backgroundColor: colors.surface,
     padding: spacing.lg,
-    borderRadius: spacing.md,
+    borderRadius: RADIUS.md,
     margin: spacing.md,
     marginTop: 0,
+    ...SHADOWS.small,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.primary,
   },
-  motivationText: {
+  quoteIconContainer: {
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  quoteText: {
     ...typography.body,
     color: colors.textPrimary,
     textAlign: 'center',
     fontStyle: 'italic',
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  quoteDivider: {
+    width: 40,
+    height: 2,
+    backgroundColor: colors.primary,
+    alignSelf: 'center',
+    marginTop: spacing.sm,
+    borderRadius: 1,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -218,49 +337,50 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     marginBottom: spacing.lg,
   },
-  timeStatsContainer: {
-    backgroundColor: colors.surface,
-    padding: spacing.lg,
-    borderRadius: spacing.md,
-    margin: spacing.md,
-  },
   sectionTitle: {
     ...typography.subtitle,
     color: colors.textPrimary,
     marginBottom: spacing.md,
     textAlign: 'center',
   },
-  timeStatsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  timeStatItem: {
-    alignItems: 'center',
-  },
-  timeStatNumber: {
-    ...typography.title,
-    color: colors.primary,
-    fontWeight: 'bold',
-  },
-  timeStatLabel: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
   nextAchievementContainer: {
     backgroundColor: colors.surface,
     padding: spacing.lg,
-    borderRadius: spacing.md,
+    borderRadius: RADIUS.md,
     margin: spacing.md,
     marginBottom: spacing.xl,
+    ...SHADOWS.small,
+  },
+  sectionTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
   },
   achievementPreview: {
     flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  badgeContainer: {
+    width: 80,
+    height: 80,
+    marginRight: spacing.md,
+    position: 'relative',
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeBackground: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...SHADOWS.small,
   },
   achievementIcon: {
-    fontSize: 40,
-    marginRight: spacing.md,
+    fontSize: 32,
+    color: colors.background,
   },
   achievementInfo: {
     flex: 1,
@@ -291,6 +411,19 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: colors.primary,
     borderRadius: 4,
+  },
+  achievementProgressFill: {
+    backgroundColor: '#4CAF50',
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+  },
+  progressPercentage: {
+    ...typography.caption,
+    color: colors.primary,
+    marginTop: spacing.xs,
+    fontWeight: '600',
   },
   progressText: {
     ...typography.caption,

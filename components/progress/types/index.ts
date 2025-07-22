@@ -65,6 +65,10 @@ export type StatCardProps = {
   title: string
   value: string | number
   subtitle?: string
+  icon?: string
+  iconColor?: string
+  isStreak?: boolean
+  streakType?: 'current' | 'longest'
 }
 
 export type ViewSelectorProps = {
@@ -76,6 +80,7 @@ export type CalendarViewProps = {
   calendarDays: WorkoutDay[]
   currentDate: Date
   onNavigateMonth: (direction: 'prev' | 'next') => void
+  stats: ProgressStats
 }
 
 export type JournalViewProps = {

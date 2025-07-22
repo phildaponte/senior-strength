@@ -1,8 +1,8 @@
 import React from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { WorkoutDay } from '../types'
-import { COLORS as colors, TYPOGRAPHY as typography, SPACING as spacing } from '../styles/sharedStyles'
+import { WorkoutDay, ProgressStats } from '../types'
+import { COLORS as colors, TYPOGRAPHY as typography, SPACING as spacing, RADIUS, SHADOWS } from '../styles/sharedStyles'
 
 interface CalendarViewProps {
   calendarDays: WorkoutDay[]
@@ -11,6 +11,7 @@ interface CalendarViewProps {
   monthYear: string
   dayHeaders: string[]
   loading: boolean
+  stats: ProgressStats
 }
 
 /**
@@ -25,7 +26,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   onNavigateMonth,
   monthYear,
   dayHeaders,
-  loading
+  loading,
+  stats
 }) => {
   // Calculate calendar statistics for the current month
   const currentMonthDays = calendarDays.filter(day => day.isCurrentMonth && day.date)
@@ -44,6 +46,28 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Recent Activity Section */}
+      <View style={styles.recentActivityContainer}>
+        <Text style={styles.sectionTitle}>Recent Activity</Text>
+        <View style={styles.activityGrid}>
+          <View style={styles.activityBox}>
+            <Ionicons name="calendar-outline" size={20} color={colors.primary} />
+            <Text style={styles.activityNumber}>{stats.thisWeekWorkouts}</Text>
+            <Text style={styles.activityLabel}>This Week</Text>
+          </View>
+          <View style={styles.activityBox}>
+            <Ionicons name="calendar" size={20} color={colors.secondary} />
+            <Text style={styles.activityNumber}>{stats.thisMonthWorkouts}</Text>
+            <Text style={styles.activityLabel}>This Month</Text>
+          </View>
+          <View style={styles.activityBox}>
+            <Ionicons name="calendar-sharp" size={20} color={colors.primary} />
+            <Text style={styles.activityNumber}>{stats.thisYearWorkouts}</Text>
+            <Text style={styles.activityLabel}>This Year</Text>
+          </View>
+        </View>
+      </View>
+
       {/* Calendar Header with Navigation */}
       <View style={styles.header}>
         <TouchableOpacity 
@@ -205,6 +229,46 @@ const styles = StyleSheet.create({
   loadingText: {
     ...typography.body,
     color: colors.textSecondary,
+  },
+  recentActivityContainer: {
+    backgroundColor: colors.surface,
+    margin: spacing.md,
+    padding: spacing.lg,
+    borderRadius: RADIUS.md,
+    ...SHADOWS.small,
+  },
+  sectionTitle: {
+    ...typography.subtitle,
+    color: colors.textPrimary,
+    marginBottom: spacing.md,
+    textAlign: 'center',
+  },
+  activityGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  activityBox: {
+    flex: 1,
+    backgroundColor: colors.background,
+    marginHorizontal: spacing.xs,
+    padding: spacing.md,
+    borderRadius: RADIUS.sm,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...SHADOWS.small,
+  },
+  activityNumber: {
+    ...typography.title,
+    color: colors.primary,
+    fontWeight: 'bold',
+    marginTop: spacing.xs,
+  },
+  activityLabel: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
+    textAlign: 'center',
   },
   header: {
     flexDirection: 'row',

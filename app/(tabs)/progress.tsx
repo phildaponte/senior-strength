@@ -146,6 +146,7 @@ export default function ProgressTab() {
             monthYear={monthYear}
             dayHeaders={dayHeaders}
             loading={calendarLoading}
+            stats={stats}
           />
         )
       
